@@ -90,7 +90,6 @@ hr{border:none;border-top:1px solid var(--border);margin:24px 0;}
 <div class="tabs-bar">
   <button class="tab active" onclick="showTab('cap-overview')">Overview</button>
   <button class="tab" onclick="showTab('cap-scenario')">Full Scenario</button>
-  <button class="tab" onclick="showTab('cap-stages')">6 Stages</button>
   <button class="tab" onclick="showTab('cap-template')">Blank Template</button>
   <button class="tab" onclick="showTab('cap-rubric')">Rubric &amp; Debrief</button>
 </div>
@@ -216,80 +215,6 @@ hr{border:none;border-top:1px solid var(--border);margin:24px 0;}
 </ul>
 <p><strong>Stage 6 Questions:</strong> (1) List the immediate containment actions required, in priority order. (2) What data was potentially exposed, and which individuals or systems must be notified? (3) Does this incident trigger notification obligations under RA 10173? (4) What security control failure allowed each step of this attack to succeed — and what control would have prevented it?</p>
 </div>
-
-<!-- ══════════════ 6 STAGES ══════════════ -->
-<div id="pane-cap-stages" class="pane">
-<h2>Stage-by-Stage Facilitator Guide</h2>
-<p>Each stage below includes: the key question groups must answer, facilitator prompts if groups stall, and what a strong response looks like.</p>
-
-<div class="stage-header">
-  <span>Stage 1 — Network Reconnaissance</span>
-  <small>0–20 min · Module 4 · Network & Infrastructure Security</small>
-</div>
-<div class="stage-body">
-  <p><strong>Key question:</strong> What type of network attack is occurring? What control gaps allowed it? What should happen right now?</p>
-  <p><strong>Strong response includes:</strong> Identifies port scanning / reconnaissance as the attack type. Names RDP (3389) as the high-risk service. Notes absence of MFA on RDP as a critical gap. Recommends: block the external IP at the firewall, disable external RDP or restrict to VPN only, apply pending patches to the operations server. Identifies that 16 repeated attempts over 7+ hours suggest an automated, persistent attacker — not opportunistic scanning.</p>
-  <p><strong>If groups stall:</strong> "Which lecture covered firewall allow/deny rules? What does it say about exposing RDP to the internet? What does the absence of MFA on a remote login mean?"</p>
-  <p><strong>Common error:</strong> Groups recommend only blocking the IP without addressing the underlying RDP exposure. The IP block is correct but insufficient — another IP will try again.</p>
-</div>
-
-<div class="stage-header">
-  <span>Stage 2 — Endpoint Compromise</span>
-  <small>20–40 min · Module 5 · Endpoint Protection & Mobility</small>
-</div>
-<div class="stage-body">
-  <p><strong>Key question:</strong> Why did antivirus miss the macro? What does the EDR alert tell you? What immediate actions are required for Lorenzo's laptop?</p>
-  <p><strong>Strong response includes:</strong> Explains AV missed the macro because macros use a legitimate Microsoft Office feature — no malware file signature to match. EDR caught it because it detected PowerShell launching from Word (unusual process behavior). Recommends: immediately isolate Lorenzo's laptop from the network (via MDM remote command or network port disable), notify Lorenzo, preserve the laptop as evidence (do not wipe), escalate the EDR alert. Notes that AV definition being 6 weeks old compounds the gap.</p>
-  <p><strong>If groups stall:</strong> "What did Lecture 5.1 say about why EDR catches what AV misses? What MDM capability would let IT isolate the laptop without physical access?"</p>
-  <p><strong>Common error:</strong> Groups recommend wiping the laptop immediately. This destroys forensic evidence. The correct sequence is: isolate → investigate → then decide on remediation.</p>
-</div>
-
-<div class="stage-header">
-  <span>Stage 3 — The Deepfake Call</span>
-  <small>40–60 min · Module 6 · AI & The Future of Security</small>
-</div>
-<div class="stage-body">
-  <p><strong>Key question:</strong> What attack type is this? What made it convincing? How should the finance officer verify? What should the IT manager communicate to all staff right now?</p>
-  <p><strong>Strong response includes:</strong> Identifies Business Voice Compromise (BVC) / deepfake voice cloning. Notes that the Director's recorded speech provided the voice sample. Recommends call-back verification on the Director's known official number (which the scenario says the finance officer did — reward this). Recommends immediate all-staff notice: "If you receive any financial, access, or credential-related request by Viber, WhatsApp, or personal mobile, do not process it — call the requester's official number to verify before acting." Notes the timing is suspicious — this attempt came 58 minutes after the EDR alert, suggesting coordinated attack.</p>
-  <p><strong>If groups stall:</strong> "What tool did the attacker use to create the voice note? Where did they get the voice sample? What does Module 6 say about call-back verification?"</p>
-</div>
-
-<div class="stage-header">
-  <span>Stage 4 — Data Exfiltration Alert</span>
-  <small>60–80 min · Modules 4 + 5 · Network + Endpoint</small>
-</div>
-<div class="stage-body">
-  <p><strong>Key question:</strong> How did the exfiltration happen? What controls failed? What should happen to the data that was transferred?</p>
-  <p><strong>Strong response includes:</strong> Traces the chain: malicious macro → AnyDesk installed → remote session at 12:54 PM → DLP flagged Google Drive upload. Notes AnyDesk was installed 2 minutes after the Word document was opened — the attacker used the macro to install their own remote access tool. Notes Lorenzo was at lunch (laptop left unlocked) — good that DLP flagged it, but the remote session bypassed the need for physical access. Recommends: block Google Drive at the network firewall (or content filtering) to prevent further uploads; request emergency Google account preservation order (through legal/DICT channel) if agency has authority; identify what the 1.2 GB contained (which files?). Notes the DLP should have blocked (not just alerted) a 1.2 GB transfer to a personal cloud account.</p>
-  <p><strong>If groups stall:</strong> "What did Module 5 say about DLP alert modes — monitor vs. warn vs. block? Which mode appears to have been set here? What should it have been set to for a 1.2 GB transfer to a personal cloud?"</p>
-</div>
-
-<div class="stage-header">
-  <span>Stage 5 — AI Anomaly Detection Fires</span>
-  <small>80–100 min · Modules 5 + 6 · Endpoint + AI</small>
-</div>
-<div class="stage-body">
-  <p><strong>Key question:</strong> What does the behavioral anomaly alert tell you that no other tool caught? What is Maria Cruz's account status right now? What must happen in the next 10 minutes?</p>
-  <p><strong>Strong response includes:</strong> Identifies the simultaneous login anomaly (Maria is in the office but her account is logged in elsewhere) as proof of credential theft — not a false positive. Traces the source: credentials were in Lorenzo's browser password manager and were extracted during the AnyDesk remote session. Recommends immediate actions: force-reset Maria Cruz's password NOW (every minute of delay allows continued access), lock Maria's sessions on all systems, review what the attacker accessed with her credentials (payroll database, 847 files). Notes this is the AI behavioral analytics platform doing exactly what it is designed for — catching an attacker who had valid credentials.</p>
-  <p><strong>If groups stall:</strong> "Can Maria Cruz be logged in from two places at once? What does the scenario say about her location? Where did the attacker get her credentials? What Module 6 concept explains how the AI caught this?"</p>
-</div>
-
-<div class="stage-header">
-  <span>Stage 6 — Incident Response and Notification</span>
-  <small>100–120 min · All Modules · Full Integration</small>
-</div>
-<div class="stage-body">
-  <p><strong>Key question:</strong> Complete the incident timeline. What was exposed? What notification obligations apply?</p>
-  <p><strong>Strong response includes:</strong></p>
-  <ul>
-    <li><strong>Immediate containment (priority order):</strong> (1) Reset Maria Cruz's password and terminate active sessions. (2) Isolate Lorenzo's laptop from the network. (3) Block the external reconnaissance IP at the firewall. (4) Disable external RDP access to the operations hub server. (5) Preserve all logs (EDR, DLP, AI analytics, firewall) as evidence. (6) Notify the IT manager's supervisors and initiate formal incident record.</li>
-    <li><strong>Data exposed:</strong> 1.2 GB of contract documents from Lorenzo's laptop (may contain supplier personal data, financial data). 847 files accessed on payroll database using Maria's credentials (likely contain employee personal data — name, ID numbers, salary information).</li>
-    <li><strong>RA 10173 notification:</strong> The payroll database access almost certainly constitutes a personal data breach under RA 10173 — employee payroll records contain personal data. The agency's Data Protection Officer must be notified. The NPC must be notified within 72 hours if the breach is likely to result in significant harm. Affected employees (whose payroll data was accessed) may need to be notified. Note: <em>not every incident automatically triggers the same notification obligation</em> — the DPO must assess the specific data involved, the likelihood of harm, and the circumstances.</li>
-    <li><strong>Control failures and mitigations:</strong> For each attack step, the group names the control that failed and the control that would have prevented it (e.g., RDP exposed without MFA → restrict RDP to VPN and require MFA; DLP in alert mode → block large uploads to personal cloud storage).</li>
-  </ul>
-  <p><strong>If groups stall on RA 10173:</strong> "What kind of data was in the payroll database? Is employee salary and ID data personal information under RA 10173? What is the notification timeline?"</p>
-</div>
-</div><!-- /cap-stages -->
 
 <!-- ══════════════ BLANK TEMPLATE ══════════════ -->
 <div id="pane-cap-template" class="pane">
