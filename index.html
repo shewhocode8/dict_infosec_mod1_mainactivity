@@ -1,0 +1,534 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Capstone — Secure the Mission</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --bg:#F7F8FA;--surface:#FFF;--border:#E2E6EC;--fg:#111827;--fg2:#4B5563;--fg3:#9CA3AF;
+  --navy:#12253F;--teal:#00858C;--teal-lt:#E0F4F5;--gold:#B45309;--gold-lt:#FEF3C7;
+  --green:#166534;--green-lt:#DCFCE7;--red:#991B1B;--red-lt:#FEF2F2;
+  --purple:#5B21B6;--purp-lt:#EDE9FE;--r:10px;--sh:0 2px 12px rgba(0,0,0,.07);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0D1117;--surface:#161B22;--border:#2D333B;--fg:#E6EDF3;--fg2:#8B949E;--fg3:#484F58;
+  --navy:#1C3256;--teal:#1AABB3;--teal-lt:#0D2B2D;--gold:#D97706;--gold-lt:#1C1400;
+  --green:#22C55E;--green-lt:#052E16;--red:#EF4444;--red-lt:#1C0A0A;
+  --purple:#A78BFA;--purp-lt:#1E1333;color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0D1117;--surface:#161B22;--border:#2D333B;--fg:#E6EDF3;--fg2:#8B949E;--fg3:#484F58;
+  --navy:#1C3256;--teal:#1AABB3;--teal-lt:#0D2B2D;--gold:#D97706;--gold-lt:#1C1400;
+  --green:#22C55E;--green-lt:#052E16;--red:#EF4444;--red-lt:#1C0A0A;
+  --purple:#A78BFA;--purp-lt:#1E1333;color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--fg);font-family:'Inter',sans-serif;font-size:15px;line-height:1.65;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0;}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--navy);z-index:21;}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--navy);
+  padding:14px max(20px,env(safe-area-inset-left,0px));
+  margin-left:calc(-1*max(16px,env(safe-area-inset-left,0px)));
+  margin-right:calc(-1*max(16px,env(safe-area-inset-right,0px)));
+  display:flex;align-items:center;gap:14px;}
+.topbar h1{font-size:14px;font-weight:700;color:#fff;flex:1;}
+.topbar p{font-size:11px;color:rgba(255,255,255,.5);}
+.tabs-bar{display:flex;gap:4px;overflow-x:auto;padding:16px 0 0;border-bottom:2px solid var(--border);
+  margin-bottom:24px;scrollbar-width:none;}
+.tabs-bar::-webkit-scrollbar{display:none;}
+.tab{padding:8px 16px;border-radius:6px 6px 0 0;font-size:13px;font-weight:600;cursor:pointer;
+  border:none;background:transparent;color:var(--fg3);white-space:nowrap;transition:color .15s;}
+.tab:hover{color:var(--teal);}
+.tab.active{background:var(--surface);color:var(--teal);border:2px solid var(--border);border-bottom:2px solid var(--surface);margin-bottom:-2px;}
+.pane{display:none;}.pane.active{display:block;}
+.main{max-width:820px;margin:0 auto;padding-block:24px 60px;}
+h2{font-size:20px;font-weight:800;color:var(--fg);margin:28px 0 12px;text-wrap:balance;}
+h2:first-child{margin-top:0;}
+h3{font-size:16px;font-weight:700;color:var(--teal);margin:20px 0 8px;}
+h4{font-size:14px;font-weight:700;color:var(--fg2);margin:16px 0 6px;text-transform:uppercase;letter-spacing:.06em;}
+p{color:var(--fg2);margin-bottom:12px;}
+ul,ol{margin:0 0 14px 20px;color:var(--fg2);}
+li{margin-bottom:6px;}
+strong{color:var(--fg);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:18px;box-shadow:var(--sh);}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;}
+.badge-teal{background:var(--teal-lt);color:var(--teal);}
+.badge-gold{background:var(--gold-lt);color:var(--gold);}
+.badge-purple{background:var(--purp-lt);color:var(--purple);}
+.badge-green{background:var(--green-lt);color:var(--green);}
+.badge-navy{background:var(--navy);color:#fff;}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;}
+th{background:var(--navy);color:#fff;padding:10px 12px;text-align:left;font-size:12px;font-weight:700;letter-spacing:.05em;}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--fg2);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+.rubric-row td:first-child{font-weight:600;color:var(--fg);}
+.scenario{background:var(--teal-lt);border-left:4px solid var(--teal);border-radius:0 8px 8px 0;padding:16px 18px;margin:16px 0;font-size:14px;}
+.scenario strong{color:var(--teal);}
+.info-box{background:var(--gold-lt);border:1px solid var(--gold);border-radius:8px;padding:14px 16px;margin:14px 0;font-size:13px;}
+.info-box strong{color:var(--gold);}
+.answer-box{background:var(--green-lt);border:1px solid var(--green);border-radius:8px;padding:16px 18px;margin:12px 0;font-size:14px;}
+.answer-box strong{color:var(--green);}
+.blank-box{border:2px dashed var(--border);border-radius:8px;padding:20px;color:var(--fg3);font-size:13px;margin:12px 0;}
+.stage-header{background:var(--navy);color:#fff;border-radius:8px 8px 0 0;padding:12px 18px;margin-top:20px;}
+.stage-header span{font-size:13px;font-weight:700;}
+.stage-header small{display:block;font-size:11px;color:rgba(255,255,255,.6);margin-top:2px;}
+.stage-body{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:16px 18px;margin-bottom:20px;}
+.module-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin:2px;text-transform:uppercase;letter-spacing:.05em;}
+.tag-m4{background:var(--teal-lt);color:var(--teal);}
+.tag-m5{background:var(--gold-lt);color:var(--gold);}
+.tag-m6{background:var(--purp-lt);color:var(--purple);}
+hr{border:none;border-top:1px solid var(--border);margin:24px 0;}
+</style>
+
+<div class="topbar">
+  <div>
+    <h1>Capstone — Secure the Mission</h1>
+    <p>Integrated Capstone Exercise · 120 Minutes · Modules 4–6</p>
+  </div>
+</div>
+
+<div class="main">
+<div class="tabs-bar">
+  <button class="tab active" onclick="showTab('cap-overview')">Overview</button>
+  <button class="tab" onclick="showTab('cap-scenario')">Full Scenario</button>
+  <button class="tab" onclick="showTab('cap-stages')">6 Stages</button>
+  <button class="tab" onclick="showTab('cap-template')">Blank Template</button>
+  <button class="tab" onclick="showTab('cap-answer')">Model Answer</button>
+  <button class="tab" onclick="showTab('cap-rubric')">Rubric &amp; Debrief</button>
+</div>
+
+<!-- ══════════════ OVERVIEW ══════════════ -->
+<div id="pane-cap-overview" class="pane active">
+<h2>Capstone Overview — "Secure the Mission"</h2>
+<h3>Protecting Transportation Operations in a Connected and AI-Enabled Environment</h3>
+
+<div class="card">
+  <span class="badge badge-navy">Integrated Capstone</span>
+  <p><strong>Duration:</strong> 120 minutes (6 stages × 20 minutes each)</p>
+  <p><strong>Format:</strong> Small groups of 4–5. Each group works through the same 6-stage incident together, filling in their analysis worksheet stage by stage as new information arrives.</p>
+  <p><strong>Purpose:</strong> Apply all three modules simultaneously — participants cannot solve the capstone by drawing only on one module's content. The incident is designed so each stage requires a different module's framework.</p>
+  <p><strong>Output:</strong> A completed 6-stage incident analysis and response worksheet, submitted at the end for scoring.</p>
+  <p><strong>Security constraint:</strong> This is a fictional training scenario set in a fictional agency. Participants must not use actual passenger data, credentials, screenshots, or confidential agency records in any response.</p>
+</div>
+
+<h3>Stage Map</h3>
+<table>
+  <tr><th>#</th><th>Stage Name</th><th>Primary Module</th><th>Time</th><th>What Groups Produce</th></tr>
+  <tr>
+    <td>1</td><td>Network Reconnaissance</td>
+    <td><span class="module-tag tag-m4">M4</span></td>
+    <td>0–20 min</td>
+    <td>Network threat identification, attack path, recommended network control</td>
+  </tr>
+  <tr>
+    <td>2</td><td>Endpoint Compromise</td>
+    <td><span class="module-tag tag-m5">M5</span></td>
+    <td>20–40 min</td>
+    <td>Endpoint protection gap analysis, immediate containment recommendation</td>
+  </tr>
+  <tr>
+    <td>3</td><td>The Deepfake Call</td>
+    <td><span class="module-tag tag-m6">M6</span></td>
+    <td>40–60 min</td>
+    <td>Attack type identification, verification procedure, communication to staff</td>
+  </tr>
+  <tr>
+    <td>4</td><td>Data Exfiltration Alert</td>
+    <td><span class="module-tag tag-m5">M5</span> <span class="module-tag tag-m4">M4</span></td>
+    <td>60–80 min</td>
+    <td>DLP + network analysis, exfiltration channel identification, policy recommendation</td>
+  </tr>
+  <tr>
+    <td>5</td><td>AI Anomaly Detection Fires</td>
+    <td><span class="module-tag tag-m6">M6</span> <span class="module-tag tag-m5">M5</span></td>
+    <td>80–100 min</td>
+    <td>Behavioral alert triage, analyst decision tree, escalation recommendation</td>
+  </tr>
+  <tr>
+    <td>6</td><td>Incident Response and Notification</td>
+    <td><span class="module-tag tag-m4">M4</span> <span class="module-tag tag-m5">M5</span> <span class="module-tag tag-m6">M6</span></td>
+    <td>100–120 min</td>
+    <td>Full incident timeline, affected systems, containment actions, notification assessment</td>
+  </tr>
+</table>
+
+<h3>Facilitator Instructions</h3>
+<ul>
+  <li><strong>Release stages sequentially:</strong> Do not distribute all 6 stages at once. Each stage packet is released at the 20-minute mark.</li>
+  <li><strong>Intervene at 15 minutes</strong> if groups are stuck: "What module covers this? What did we learn about [network threats / DLP / behavioral anomalies]?"</li>
+  <li><strong>Encourage cross-group comparison:</strong> Different groups may make different but defensible decisions — this is intentional and produces rich debrief discussion.</li>
+  <li><strong>Scoring is discussion-focused:</strong> The rubric rewards reasoning and application, not matching a single correct answer.</li>
+  <li><strong>Debrief at 115 minutes:</strong> 5-minute all-group debrief on Stage 6's notification question before final scoring.</li>
+</ul>
+</div>
+
+<!-- ══════════════ FULL SCENARIO ══════════════ -->
+<div id="pane-cap-scenario" class="pane">
+<h2>Full Scenario — "Secure the Mission"</h2>
+<div class="info-box"><strong>Fictional scenario notice:</strong> All names, agencies, systems, IP addresses, and incidents in this scenario are fictional and created for training purposes only. Participants must not use actual credentials, operational data, or confidential agency records in any response.</div>
+
+<div class="scenario">
+  <strong>SETTING: Luntiang Transportasyon Authority (LTA) — Fictional Regional Transportation Agency</strong><br><br>
+  LTA manages 47 provincial bus terminals, a regional rail coordination center, and a central operations hub. It employs 1,200 staff, with 340 working remotely. All terminals connect to a central operations network. Field inspectors use agency-issued tablets enrolled in MDM. Finance and operations staff use Windows laptops.<br><br>
+  It is a Thursday afternoon in October. The IT security team has 3 staff: one security analyst, one network administrator, and an IT manager. There is no dedicated 24/7 SOC. The agency uses a commercial EDR product, a DLP system, and recently deployed an AI-assisted behavioral analytics platform (trial license, 60 days remaining).<br><br>
+  The agency received a cybersecurity advisory 3 weeks ago about a targeted attack campaign against transportation agencies in Southeast Asia. No action was taken beyond forwarding the email to the IT team.
+</div>
+
+<h3>Stage 1 Disclosure — 9:47 AM</h3>
+<p>The network administrator notices unusual traffic in the firewall logs. Inbound connection attempts from an external IP are probing ports 22 (SSH), 3389 (RDP), and 445 (SMB) against the operations hub server. The attempts began at 2:13 AM and have occurred every 47 minutes since then — 16 attempts total. The external IP has not been seen before. The attempts have not succeeded yet — no login was established.</p>
+<p><strong>Additional context:</strong> The operations hub server runs an older version of Windows Server that has not been patched in 8 months. RDP (port 3389) is enabled on it and has been used for remote management. No MFA is configured on the RDP connection.</p>
+
+<h3>Stage 2 Disclosure — 10:23 AM</h3>
+<p>The EDR system generates an alert: <em>"Unusual process execution — LGUERRA-LAPTOP — powershell.exe launched by Microsoft Word — 10:17 AM."</em> Lorenzo Guerra is a Contracts Officer. He opened a Word document attached to an email titled "Q4 Infrastructure Budget Revision — For Review." The email sender address appears to be from the agency's internal domain but was flagged by email security as "display name spoofing — actual domain: lta-gov-ph.procurement.notifications-noreply[.]xyz."</p>
+<p><strong>Additional context:</strong> Lorenzo's laptop has antivirus installed (last definition update: 6 weeks ago). It is enrolled in MDM. The EDR alert is marked "High" severity. Lorenzo has not yet been informed.</p>
+
+<h3>Stage 3 Disclosure — 11:05 AM</h3>
+<p>The finance officer calls the IT manager directly: <em>"I just received a voice note on Viber from a number I don't recognize. The message sounds like Director Aquino — the voice is identical. It says there's an emergency fund transfer of ₱1.2 million needed before 2 PM for a road safety equipment procurement. The Director is apparently in a meeting and cannot be reached. Should I process it?"</em></p>
+<p><strong>Additional context:</strong> Director Aquino gave a recorded speech at an industry forum 3 weeks ago. A transcript and video are publicly available. The Viber number is not in the agency's contact directory.</p>
+
+<h3>Stage 4 Disclosure — 1:14 PM</h3>
+<p>The DLP system generates an alert: <em>"Large file transfer — 1.2 GB — external destination — LGUERRA-LAPTOP — 12:58 PM — destination: cloud storage upload to personal Google Drive account."</em> Lorenzo claims he was at lunch from 12:30 to 1:15 PM and was not at his computer. His laptop was left unlocked on his desk. The EDR shows that at 12:54 PM, a remote session was established on his laptop using a tool called "AnyDesk" — an application not on the approved software list. The remote session lasted 22 minutes.</td></p>
+<p><strong>Additional context:</strong> AnyDesk was installed on the laptop at 10:19 AM — 2 minutes after the malicious Word document was opened.</p>
+
+<h3>Stage 5 Disclosure — 2:31 PM</h3>
+<p>The AI behavioral analytics platform generates a critical alert: <em>"Account: MCRUZ — Risk Score: 94/100 — Anomalies: (1) Login from unknown IP at 11:43 AM while active session already open in office. (2) First-ever access to payroll database at 12:01 PM. (3) 847 files accessed in 6 minutes — 12:03 PM. (4) Attempted access to finance system denied — insufficient permissions — 12:07 PM."</em></p>
+<p>Maria Cruz is a Records Officer. She is currently in the office and says she has been there all morning. She has no idea why her account would be logged in from another location. Her password has not been changed recently.</p>
+
+<h3>Stage 6 Disclosure — 3:15 PM</h3>
+<p>The IT manager assembles the timeline. The following is now known:</p>
+<ul>
+  <li>A network reconnaissance campaign began at 2:13 AM targeting the operations hub server via RDP.</li>
+  <li>A phishing email with a malicious macro was delivered to Lorenzo Guerra's account at approximately 10:15 AM. Opening the document installed a remote-access tool (AnyDesk).</li>
+  <li>A deepfake voice BVC attempt was made against the finance officer at approximately 11:05 AM. (No funds were transferred — the finance officer called back on the Director's known number and confirmed it was fraudulent.)</li>
+  <li>Using the AnyDesk remote session, the attacker exfiltrated 1.2 GB of contract documents from Lorenzo's laptop to a personal Google Drive account at 12:54–1:16 PM.</li>
+  <li>Maria Cruz's credentials were found in the Lorenzo laptop's browser cache — her password was stored in the browser's password manager and was accessible during the remote session. The attacker used her credentials to access the payroll database and files.</li>
+  <li>Lorenzo's laptop is still connected to the network. Maria Cruz's password has not yet been changed.</li>
+</ul>
+<p><strong>Stage 6 Questions:</strong> (1) List the immediate containment actions required, in priority order. (2) What data was potentially exposed, and which individuals or systems must be notified? (3) Does this incident trigger notification obligations under RA 10173? (4) What security control failure allowed each step of this attack to succeed — and what control would have prevented it?</p>
+</div>
+
+<!-- ══════════════ 6 STAGES ══════════════ -->
+<div id="pane-cap-stages" class="pane">
+<h2>Stage-by-Stage Facilitator Guide</h2>
+<p>Each stage below includes: the key question groups must answer, facilitator prompts if groups stall, and what a strong response looks like.</p>
+
+<div class="stage-header">
+  <span>Stage 1 — Network Reconnaissance</span>
+  <small>0–20 min · Module 4 · Network & Infrastructure Security</small>
+</div>
+<div class="stage-body">
+  <p><strong>Key question:</strong> What type of network attack is occurring? What control gaps allowed it? What should happen right now?</p>
+  <p><strong>Strong response includes:</strong> Identifies port scanning / reconnaissance as the attack type. Names RDP (3389) as the high-risk service. Notes absence of MFA on RDP as a critical gap. Recommends: block the external IP at the firewall, disable external RDP or restrict to VPN only, apply pending patches to the operations server. Identifies that 16 repeated attempts over 7+ hours suggest an automated, persistent attacker — not opportunistic scanning.</p>
+  <p><strong>If groups stall:</strong> "Which lecture covered firewall allow/deny rules? What does it say about exposing RDP to the internet? What does the absence of MFA on a remote login mean?"</p>
+  <p><strong>Common error:</strong> Groups recommend only blocking the IP without addressing the underlying RDP exposure. The IP block is correct but insufficient — another IP will try again.</p>
+</div>
+
+<div class="stage-header">
+  <span>Stage 2 — Endpoint Compromise</span>
+  <small>20–40 min · Module 5 · Endpoint Protection & Mobility</small>
+</div>
+<div class="stage-body">
+  <p><strong>Key question:</strong> Why did antivirus miss the macro? What does the EDR alert tell you? What immediate actions are required for Lorenzo's laptop?</p>
+  <p><strong>Strong response includes:</strong> Explains AV missed the macro because macros use a legitimate Microsoft Office feature — no malware file signature to match. EDR caught it because it detected PowerShell launching from Word (unusual process behavior). Recommends: immediately isolate Lorenzo's laptop from the network (via MDM remote command or network port disable), notify Lorenzo, preserve the laptop as evidence (do not wipe), escalate the EDR alert. Notes that AV definition being 6 weeks old compounds the gap.</p>
+  <p><strong>If groups stall:</strong> "What did Lecture 5.1 say about why EDR catches what AV misses? What MDM capability would let IT isolate the laptop without physical access?"</p>
+  <p><strong>Common error:</strong> Groups recommend wiping the laptop immediately. This destroys forensic evidence. The correct sequence is: isolate → investigate → then decide on remediation.</p>
+</div>
+
+<div class="stage-header">
+  <span>Stage 3 — The Deepfake Call</span>
+  <small>40–60 min · Module 6 · AI & The Future of Security</small>
+</div>
+<div class="stage-body">
+  <p><strong>Key question:</strong> What attack type is this? What made it convincing? How should the finance officer verify? What should the IT manager communicate to all staff right now?</p>
+  <p><strong>Strong response includes:</strong> Identifies Business Voice Compromise (BVC) / deepfake voice cloning. Notes that the Director's recorded speech provided the voice sample. Recommends call-back verification on the Director's known official number (which the scenario says the finance officer did — reward this). Recommends immediate all-staff notice: "If you receive any financial, access, or credential-related request by Viber, WhatsApp, or personal mobile, do not process it — call the requester's official number to verify before acting." Notes the timing is suspicious — this attempt came 58 minutes after the EDR alert, suggesting coordinated attack.</p>
+  <p><strong>If groups stall:</strong> "What tool did the attacker use to create the voice note? Where did they get the voice sample? What does Module 6 say about call-back verification?"</p>
+</div>
+
+<div class="stage-header">
+  <span>Stage 4 — Data Exfiltration Alert</span>
+  <small>60–80 min · Modules 4 + 5 · Network + Endpoint</small>
+</div>
+<div class="stage-body">
+  <p><strong>Key question:</strong> How did the exfiltration happen? What controls failed? What should happen to the data that was transferred?</p>
+  <p><strong>Strong response includes:</strong> Traces the chain: malicious macro → AnyDesk installed → remote session at 12:54 PM → DLP flagged Google Drive upload. Notes AnyDesk was installed 2 minutes after the Word document was opened — the attacker used the macro to install their own remote access tool. Notes Lorenzo was at lunch (laptop left unlocked) — good that DLP flagged it, but the remote session bypassed the need for physical access. Recommends: block Google Drive at the network firewall (or content filtering) to prevent further uploads; request emergency Google account preservation order (through legal/DICT channel) if agency has authority; identify what the 1.2 GB contained (which files?). Notes the DLP should have blocked (not just alerted) a 1.2 GB transfer to a personal cloud account.</p>
+  <p><strong>If groups stall:</strong> "What did Module 5 say about DLP alert modes — monitor vs. warn vs. block? Which mode appears to have been set here? What should it have been set to for a 1.2 GB transfer to a personal cloud?"</p>
+</div>
+
+<div class="stage-header">
+  <span>Stage 5 — AI Anomaly Detection Fires</span>
+  <small>80–100 min · Modules 5 + 6 · Endpoint + AI</small>
+</div>
+<div class="stage-body">
+  <p><strong>Key question:</strong> What does the behavioral anomaly alert tell you that no other tool caught? What is Maria Cruz's account status right now? What must happen in the next 10 minutes?</p>
+  <p><strong>Strong response includes:</strong> Identifies the simultaneous login anomaly (Maria is in the office but her account is logged in elsewhere) as proof of credential theft — not a false positive. Traces the source: credentials were in Lorenzo's browser password manager and were extracted during the AnyDesk remote session. Recommends immediate actions: force-reset Maria Cruz's password NOW (every minute of delay allows continued access), lock Maria's sessions on all systems, review what the attacker accessed with her credentials (payroll database, 847 files). Notes this is the AI behavioral analytics platform doing exactly what it is designed for — catching an attacker who had valid credentials.</p>
+  <p><strong>If groups stall:</strong> "Can Maria Cruz be logged in from two places at once? What does the scenario say about her location? Where did the attacker get her credentials? What Module 6 concept explains how the AI caught this?"</p>
+</div>
+
+<div class="stage-header">
+  <span>Stage 6 — Incident Response and Notification</span>
+  <small>100–120 min · All Modules · Full Integration</small>
+</div>
+<div class="stage-body">
+  <p><strong>Key question:</strong> Complete the incident timeline. What was exposed? What notification obligations apply?</p>
+  <p><strong>Strong response includes:</strong></p>
+  <ul>
+    <li><strong>Immediate containment (priority order):</strong> (1) Reset Maria Cruz's password and terminate active sessions. (2) Isolate Lorenzo's laptop from the network. (3) Block the external reconnaissance IP at the firewall. (4) Disable external RDP access to the operations hub server. (5) Preserve all logs (EDR, DLP, AI analytics, firewall) as evidence. (6) Notify the IT manager's supervisors and initiate formal incident record.</li>
+    <li><strong>Data exposed:</strong> 1.2 GB of contract documents from Lorenzo's laptop (may contain supplier personal data, financial data). 847 files accessed on payroll database using Maria's credentials (likely contain employee personal data — name, ID numbers, salary information).</li>
+    <li><strong>RA 10173 notification:</strong> The payroll database access almost certainly constitutes a personal data breach under RA 10173 — employee payroll records contain personal data. The agency's Data Protection Officer must be notified. The NPC must be notified within 72 hours if the breach is likely to result in significant harm. Affected employees (whose payroll data was accessed) may need to be notified. Note: <em>not every incident automatically triggers the same notification obligation</em> — the DPO must assess the specific data involved, the likelihood of harm, and the circumstances.</li>
+    <li><strong>Control failures and mitigations:</strong> (See model answer tab for full mapping.)</li>
+  </ul>
+  <p><strong>If groups stall on RA 10173:</strong> "What kind of data was in the payroll database? Is employee salary and ID data personal information under RA 10173? What is the notification timeline?"</p>
+</div>
+</div><!-- /cap-stages -->
+
+<!-- ══════════════ BLANK TEMPLATE ══════════════ -->
+<div id="pane-cap-template" class="pane">
+<h2>Participant Worksheet — Blank Template</h2>
+<div class="info-box"><strong>Fictional scenario notice:</strong> This is a fictional training scenario. Do not use actual credentials, passenger data, screenshots, or confidential agency records in any response.</div>
+<p><em>Complete each stage as it is released. Write your group's analysis in the space provided. Explain your reasoning — answers without justification receive partial credit only.</em></p>
+<p><strong>Group members:</strong> ______________________________ <strong>Date:</strong> ______________________________</p>
+
+<div class="stage-header"><span>Stage 1 — Network Reconnaissance (0–20 min)</span></div>
+<div class="stage-body">
+  <p><strong>1a.</strong> What type of network attack/threat is described? Which module concept applies?</p>
+  <div class="blank-box" style="min-height:60px;"></div>
+  <p><strong>1b.</strong> What network control gap allowed this activity to occur undetected for 7+ hours?</p>
+  <div class="blank-box" style="min-height:60px;"></div>
+  <p><strong>1c.</strong> List your recommended immediate and longer-term network security actions.</p>
+  <div class="blank-box" style="min-height:80px;"></div>
+</div>
+
+<div class="stage-header"><span>Stage 2 — Endpoint Compromise (20–40 min)</span></div>
+<div class="stage-body">
+  <p><strong>2a.</strong> Why did antivirus miss the malicious macro? Which concept from Module 5 explains this?</p>
+  <div class="blank-box" style="min-height:60px;"></div>
+  <p><strong>2b.</strong> What immediate actions should be taken for Lorenzo's laptop — and in what order?</p>
+  <div class="blank-box" style="min-height:80px;"></div>
+  <p><strong>2c.</strong> What MDM capability would allow IT to take action on the laptop remotely?</p>
+  <div class="blank-box" style="min-height:50px;"></div>
+</div>
+
+<div class="stage-header"><span>Stage 3 — The Deepfake Call (40–60 min)</span></div>
+<div class="stage-body">
+  <p><strong>3a.</strong> Identify the attack type. How did the attacker obtain the voice sample?</p>
+  <div class="blank-box" style="min-height:60px;"></div>
+  <p><strong>3b.</strong> What verification procedure should the finance officer use — and what procedure did she apparently follow?</p>
+  <div class="blank-box" style="min-height:60px;"></div>
+  <p><strong>3c.</strong> Draft a one-paragraph all-staff notice the IT manager could send right now about this attack.</p>
+  <div class="blank-box" style="min-height:100px;"></div>
+</div>
+
+<div class="stage-header"><span>Stage 4 — Data Exfiltration Alert (60–80 min)</span></div>
+<div class="stage-body">
+  <p><strong>4a.</strong> Trace the chain of events from the malicious document to the 1.2 GB Google Drive upload.</p>
+  <div class="blank-box" style="min-height:80px;"></div>
+  <p><strong>4b.</strong> What DLP configuration gap allowed the upload to complete rather than being blocked?</p>
+  <div class="blank-box" style="min-height:60px;"></div>
+  <p><strong>4c.</strong> What two actions should be taken now to address the already-transferred data?</p>
+  <div class="blank-box" style="min-height:60px;"></div>
+</div>
+
+<div class="stage-header"><span>Stage 5 — AI Anomaly Detection Fires (80–100 min)</span></div>
+<div class="stage-body">
+  <p><strong>5a.</strong> What does the behavioral alert prove about Maria Cruz's account? Is this a false positive — why or why not?</p>
+  <div class="blank-box" style="min-height:70px;"></div>
+  <p><strong>5b.</strong> How did the attacker get Maria Cruz's credentials?</p>
+  <div class="blank-box" style="min-height:50px;"></div>
+  <p><strong>5c.</strong> What must happen in the next 10 minutes regarding Maria Cruz's account?</p>
+  <div class="blank-box" style="min-height:50px;"></div>
+</div>
+
+<div class="stage-header"><span>Stage 6 — Incident Response and Notification (100–120 min)</span></div>
+<div class="stage-body">
+  <p><strong>6a.</strong> List immediate containment actions in priority order (at least 4).</p>
+  <div class="blank-box" style="min-height:80px;"></div>
+  <p><strong>6b.</strong> What data was potentially exposed? Identify the data categories and the affected individuals.</p>
+  <div class="blank-box" style="min-height:70px;"></div>
+  <p><strong>6c.</strong> Does this incident trigger notification obligations under RA 10173? Explain your reasoning.</p>
+  <div class="blank-box" style="min-height:80px;"></div>
+  <p><strong>6d.</strong> For each attack stage below, identify the control that failed and the control that would have prevented it.</p>
+  <table>
+    <tr><th>Attack Stage</th><th>Control That Failed</th><th>Control That Would Have Prevented It</th></tr>
+    <tr><td>Network reconnaissance via RDP</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>Macro executed by AV-equipped laptop</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>AnyDesk remote session established</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>1.2 GB exfiltration to Google Drive</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>Maria Cruz credentials stolen from browser</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>Payroll database accessed with stolen credentials</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+  </table>
+</div>
+</div><!-- /cap-template -->
+
+<!-- ══════════════ MODEL ANSWER ══════════════ -->
+<div id="pane-cap-answer" class="pane">
+<h2>Model Answer — Stage-by-Stage</h2>
+<div class="info-box"><strong>Facilitator use only.</strong> Do not distribute until after all groups have submitted. Share during the debrief — Stage 6 especially benefits from full-group discussion before revealing the model.</div>
+
+<div class="stage-header"><span>Stage 1 — Network Reconnaissance</span></div>
+<div class="stage-body">
+  <p><strong>1a. Attack type:</strong> Port scanning / network reconnaissance. The attacker is systematically probing for open, exploitable services — specifically SSH (22), RDP (3389), and SMB (445), which are common remote-access and file-sharing services with known vulnerabilities. This maps to Module 4's "unauthorized access" and "insecure configuration" threat types.</p>
+  <p><strong>1b. Control gap:</strong> RDP (port 3389) is exposed directly to the internet on an unpatched server, with no MFA. This is a critical misconfiguration — RDP should never be exposed directly to the internet. Remote administration should be restricted to VPN, with MFA required.</p>
+  <div class="answer-box">
+    <strong>Recommended actions:</strong><br>
+    <em>Immediate:</em> Block the external IP at the perimeter firewall. Disable external RDP access on the operations hub server until patched.<br>
+    <em>Short-term:</em> Require VPN for all RDP connections. Enable MFA on all remote administration services. Prioritize patch deployment for the operations hub server.<br>
+    <em>Longer-term:</em> Conduct a full port audit of all internet-exposed services. Implement a network segmentation review to ensure operations systems are not directly internet-accessible.
+  </div>
+</div>
+
+<div class="stage-header"><span>Stage 2 — Endpoint Compromise</span></div>
+<div class="stage-body">
+  <p><strong>2a. Why AV missed it:</strong> The malicious macro used a legitimate Microsoft Office feature — not a known malware file. Antivirus looks for known malware signatures. A macro script has no signature in the AV database. Additionally, the AV definitions were 6 weeks out of date, further reducing its detection capability. EDR caught it because it detected anomalous process behavior: PowerShell launching as a child process of Microsoft Word is unusual and suspicious regardless of whether any file is "known malicious."</p>
+  <p><strong>2b. Immediate actions for Lorenzo's laptop (priority order):</strong></p>
+  <ol>
+    <li>Isolate the laptop from the network immediately — via MDM network isolation command or by physically unplugging the network cable. Do not wait for Lorenzo to return.</li>
+    <li>Notify Lorenzo Guerra — instruct him not to touch the laptop and not to attempt to clear anything.</li>
+    <li>Preserve EDR logs and the malicious document as evidence before any remediation.</li>
+    <li>Escalate to IT manager — this is not a routine alert; a Human analyst must make decisions from here.</li>
+    <li>Do not wipe the laptop yet — forensic investigation must come before remediation.</li>
+  </ol>
+  <p><strong>2c. MDM capability:</strong> Remote network isolation — MDM can push a network-isolation command to an enrolled device, severing its network connection while allowing the MDM connection itself to remain for further commands. This is exactly the capability MDM provides for infected endpoints.</p>
+</div>
+
+<div class="stage-header"><span>Stage 3 — The Deepfake Call</span></div>
+<div class="stage-body">
+  <p><strong>3a. Attack type:</strong> Business Voice Compromise (BVC) using AI deepfake voice cloning. The attacker cloned Director Aquino's voice from the publicly available recorded speech at the industry forum (3 weeks prior — 45+ seconds of high-quality audio is more than enough for a convincing clone). The attack combined urgency (₱1.2M before 2 PM), authority (Director's voice), and an out-of-band channel (Viber, unfamiliar number) to bypass normal authorization.</p>
+  <p><strong>3b. Verification procedure and what the officer did:</strong> The correct procedure is call-back verification — do not respond to the request, then call Director Aquino on her official agency number (not any number provided in the suspicious message) to verify. The scenario states the finance officer called the Director's known number and confirmed it was fraudulent. This is the correct and effective countermeasure — procedural verification defeated a technically sophisticated attack.</p>
+  <div class="answer-box">
+    <strong>Model all-staff notice:</strong><br><br>
+    URGENT SECURITY NOTICE — [Date]<br><br>
+    This morning, LTA received a fraudulent voice note on Viber impersonating Director [name] and requesting an unauthorized fund transfer. This attack used AI voice cloning technology to replicate the Director's voice. <strong>No funds were transferred.</strong><br><br>
+    Effective immediately: any financial, access, credentials, or approval request received by Viber, WhatsApp, SMS, or personal mobile — regardless of how convincing the voice or message sounds — must be verified by calling the requester's official agency number before any action is taken. If you are uncertain, contact IT at [extension] before responding.<br><br>
+    Do not process any request received through unofficial channels without verbal verification using a known official contact number. This notice applies to all LTA staff.
+  </div>
+</div>
+
+<div class="stage-header"><span>Stage 4 — Data Exfiltration Alert</span></div>
+<div class="stage-body">
+  <p><strong>4a. Chain of events:</strong> Malicious Word document opened at 10:17 AM → macro executes PowerShell → AnyDesk remote access tool silently installed at 10:19 AM → at 12:54 PM (Lorenzo at lunch, laptop unlocked), attacker connects via AnyDesk → operates Lorenzo's laptop remotely → copies 1.2 GB of contract documents and uploads to personal Google Drive account → DLP flags the transfer at 12:58 PM (alert mode only — does not block) → remote session ends at 1:16 PM.</p>
+  <p><strong>4b. DLP configuration gap:</strong> The DLP system was set to alert mode, not block mode, for cloud storage uploads. A 1.2 GB transfer to a personal Google Drive is a high-risk, high-volume event that should trigger an automatic block under any reasonable DLP policy. Alert mode is appropriate during initial DLP deployment to understand baseline behavior, but should be escalated to block mode for high-sensitivity channels (personal cloud storage, external USB).</p>
+  <div class="answer-box">
+    <strong>Actions for already-transferred data:</strong><br>
+    1. Identify exactly which files were transferred — review DLP logs for filenames and paths. Determine whether the files contain personal data (supplier IDs, contract counterparty information) that may constitute a RA 10173 breach.<br>
+    2. Request preservation of the Google Drive account through legal or DICT channel if available. Note: actual retrieval/deletion from the attacker's Google Drive is legally complex and unlikely to succeed quickly — the focus should be on assessing the harm and notifying affected parties.
+  </div>
+</div>
+
+<div class="stage-header"><span>Stage 5 — AI Anomaly Detection Fires</span></div>
+<div class="stage-body">
+  <p><strong>5a. What the alert proves:</strong> This is almost certainly not a false positive. The combination of four simultaneous anomalies — concurrent logins from two locations, first-ever payroll database access, mass file access (847 files in 6 minutes), and an attempted privilege escalation to the finance system — is statistically extremely unlikely to occur simultaneously for legitimate reasons. The fact that Maria Cruz is physically in the office confirms the remote session is unauthorized. AI behavioral analytics is performing exactly as designed: it detected an attacker who had valid credentials by recognizing that the behavior was inconsistent with the account owner's established patterns.</p>
+  <p><strong>5b. How credentials were obtained:</strong> Maria Cruz's credentials were stored in Lorenzo's browser password manager. During the AnyDesk remote session (12:54–1:16 PM), the attacker had full access to Lorenzo's laptop, including the browser's saved passwords. Many browsers store passwords in a format that can be extracted by an attacker with system access. This is a credential-in-browser storage risk.</p>
+  <div class="answer-box">
+    <strong>Next 10 minutes for Maria Cruz's account:</strong><br>
+    1. Force-reset Maria Cruz's password immediately and terminate all active sessions. Every minute of delay allows the attacker to continue with her credentials.<br>
+    2. Review and revoke all access tokens for Maria's account across all systems.<br>
+    3. Inform Maria Cruz — she needs to know her account was compromised and to expect a password reset notification.<br>
+    4. Pull the full session log for what the attacker accessed with her credentials during 11:43 AM – 2:31 PM (when the AI alert fired).
+  </div>
+</div>
+
+<div class="stage-header"><span>Stage 6 — Incident Response and Notification</span></div>
+<div class="stage-body">
+  <p><strong>6a. Immediate containment (priority order):</strong></p>
+  <ol>
+    <li>Force-reset Maria Cruz's password and terminate all sessions (credential access is ongoing).</li>
+    <li>Isolate Lorenzo's laptop from the network (source of the initial compromise and credential theft).</li>
+    <li>Block the external reconnaissance IP at the perimeter firewall.</li>
+    <li>Disable external RDP access to the operations hub server.</li>
+    <li>Preserve all logs — EDR, DLP, AI analytics, firewall, AD access logs — as evidence before any remediation that could overwrite them.</li>
+    <li>Notify the IT manager's supervisor and initiate the formal incident record.</li>
+  </ol>
+  <p><strong>6b. Data exposed:</strong></p>
+  <ul>
+    <li>Contract documents (1.2 GB) — from Lorenzo's laptop via Google Drive upload. Contents unknown until file inventory is reviewed; likely include supplier personal data, contract terms, pricing.</li>
+    <li>Payroll database records — accessed with Maria Cruz's credentials. Likely contain employee names, ID numbers, salary information, bank details. This is personal data under RA 10173.</li>
+    <li>Files accessed during Maria Cruz's session (847 files) — full scope depends on what Maria's access level covers.</li>
+  </ul>
+  <p><strong>6c. RA 10173 notification:</strong> The payroll database access is likely a personal data breach under RA 10173 — employee salary, identification, and financial information are personal data. The agency Data Protection Officer (DPO) must be notified immediately to assess the breach. If the breach is likely to result in significant harm to affected employees (identity theft, financial fraud), the NPC must be notified within 72 hours. Affected employees may be entitled to notification depending on the DPO's assessment. <strong>Note:</strong> Not every incident triggers the same notification obligation — the DPO must assess the specific data, the likelihood of harm, and the access scope before determining the full notification requirement.</p>
+
+  <p><strong>6d. Control failures and mitigations:</strong></p>
+  <table>
+    <tr><th>Attack Stage</th><th>Control That Failed</th><th>Control That Would Have Prevented It</th></tr>
+    <tr><td>Network reconnaissance via RDP</td><td>RDP exposed to internet; no MFA; unpatched server</td><td>Restrict RDP to VPN only; require MFA; enforce patch management SLA</td></tr>
+    <tr><td>Macro executed by AV-equipped laptop</td><td>AV signature-based only; outdated definitions; macro execution not disabled</td><td>Disable Office macros by default (Group Policy); deploy EDR; maintain current AV definitions</td></tr>
+    <tr><td>AnyDesk remote session established</td><td>No application allowlisting; AnyDesk not on blocked list; laptop left unlocked</td><td>Application allowlisting (only approved software can install/run); enforce screen lock; MDM app control policy</td></tr>
+    <tr><td>1.2 GB exfiltration to Google Drive</td><td>DLP in alert mode only; personal cloud storage not blocked</td><td>DLP configured to block large transfers to personal cloud storage; restrict access to approved cloud services only at network level</td></tr>
+    <tr><td>Maria Cruz credentials stolen from browser</td><td>Passwords stored in browser password manager on a shared/accessible device</td><td>Prohibit browser password storage for work credentials; enforce agency-approved password manager; MDM policy to disable browser password saving</td></tr>
+    <tr><td>Payroll database accessed with stolen credentials</td><td>No real-time session monitoring; no impossible-login detection until AI analytics fired</td><td>Faster AI alert response (alert at 2:31 PM for activity starting 11:43 AM = 48-minute exposure window); automated account lock on simultaneous impossible login; analyst monitoring during business hours</td></tr>
+  </table>
+</div>
+</div><!-- /cap-answer -->
+
+<!-- ══════════════ RUBRIC & DEBRIEF ══════════════ -->
+<div id="pane-cap-rubric" class="pane">
+<h2>Scoring Rubric &amp; Debrief Guide</h2>
+
+<h3>Scoring Rubric</h3>
+<p>Each stage is worth 5 points. Total: 30 points. Passing: 18/30 (60%).</p>
+<table>
+  <tr><th>Stage</th><th>5 (Excellent)</th><th>3 (Adequate)</th><th>1 (Weak)</th></tr>
+  <tr class="rubric-row">
+    <td>1 — Network Recon</td>
+    <td>Correctly identifies port scanning, names RDP exposure as key gap, recommends VPN restriction + MFA + patching with reasoning</td>
+    <td>Identifies threat, recommends IP block only, misses systemic gap</td>
+    <td>Vague or incorrect threat type; recommendation is generic</td>
+  </tr>
+  <tr class="rubric-row">
+    <td>2 — Endpoint Compromise</td>
+    <td>Explains why AV missed the macro (signature vs. behavior), correct isolation-before-wipe sequence, names MDM isolation capability</td>
+    <td>Understands AV limitation, recommends isolation but in wrong order or recommends wipe</td>
+    <td>Recommends only AV update; does not address sequence</td>
+  </tr>
+  <tr class="rubric-row">
+    <td>3 — Deepfake Call</td>
+    <td>Identifies BVC/voice cloning, traces voice sample source, shows correct call-back procedure, drafts a clear all-staff notice</td>
+    <td>Identifies the attack, recommends verification, notice is vague or incomplete</td>
+    <td>Treats as a phishing email; no verification procedure</td>
+  </tr>
+  <tr class="rubric-row">
+    <td>4 — Exfiltration</td>
+    <td>Traces full chain (macro → AnyDesk → remote session → Google Drive), identifies DLP mode gap (alert vs. block), recommends file inventory</td>
+    <td>Identifies DLP gap, misses AnyDesk installation chain</td>
+    <td>Focuses only on DLP; does not connect to Stage 2</td>
+  </tr>
+  <tr class="rubric-row">
+    <td>5 — AI Anomaly Alert</td>
+    <td>Correctly identifies why alert is not a false positive, traces credential theft to browser storage, lists immediate actions with correct priority (reset password first)</td>
+    <td>Identifies credential theft, recommends password reset, misses browser storage source</td>
+    <td>Treats as a possible false positive; no immediate action</td>
+  </tr>
+  <tr class="rubric-row">
+    <td>6 — Incident Response</td>
+    <td>Correct containment order, accurate data categories, correctly applies RA 10173 with DPO assessment note, complete control-failure table with specific controls</td>
+    <td>Containment order mostly correct, RA 10173 mentioned but without DPO role; table partially complete</td>
+    <td>Generic response; RA 10173 not addressed; table incomplete</td>
+  </tr>
+</table>
+
+<h3>Facilitator Debrief Script (5 Minutes at 115 Min)</h3>
+<p>Before collecting worksheets, ask the full group:</p>
+<ol>
+  <li><em>"How many groups said this incident requires RA 10173 notification? What was your reasoning?"</em> — Surface different perspectives. Correct answer: yes, the payroll data access almost certainly requires DPO assessment and likely NPC notification, but the specific obligation depends on the DPO's assessment of harm — not every breach triggers identical requirements.</li>
+  <li><em>"Which stage surprised you most — what did you not expect when you read the scenario?"</em> — Often Stage 5: the AI alert came almost 50 minutes after the credential use began. Discuss: what does that window mean for damage already done?</li>
+  <li><em>"One tool from each module that, if it had been deployed correctly, would have stopped the entire attack."</em> — Strong answer: MFA on RDP (M4) would have stopped Stage 1 and likely prevented everything downstream. EDR configured to block macro execution (M5). AI behavioral alert response time (M6). Explore: "Why does one control failure cascade?"</li>
+</ol>
+
+<h3>Key Themes for Full-Group Close</h3>
+<ul>
+  <li><strong>Layered defense works — but each layer must be correctly configured.</strong> Every tool in this scenario was deployed but misconfigured or not acted on: AV definitions outdated, DLP in alert mode, RDP exposed, AI alert not acted on quickly enough.</li>
+  <li><strong>Incident timelines are non-linear.</strong> The attack had three simultaneous threads running: network recon, phishing/endpoint, and deepfake BVC. A small team with no 24/7 SOC cannot track all three simultaneously — which is an honest representation of most government agency security reality.</li>
+  <li><strong>The human element remained decisive.</strong> The finance officer's call-back verification stopped the BVC attack. The AI analytics caught the credential theft — but a human analyst still had to act on the alert. Technology creates the opportunity; people make the decision.</li>
+</ul>
+</div><!-- /cap-rubric -->
+
+</div><!-- main -->
+<script>
+function showTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-'+id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+
+</body></html>
